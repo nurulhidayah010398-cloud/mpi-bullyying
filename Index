@@ -1,0 +1,1724 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MPI BK: Bullying - Berani Peduli, Berani Bertindak!</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter & Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            blue: '#2563eb',
+                            darkblue: '#1e40af',
+                            purple: '#7c3aed',
+                            yellow: '#f59e0b',
+                            pink: '#ec4899',
+                            light: '#f0f9ff'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Styling & Animations */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f4f6fb;
+            color: #1e293b;
+            user-select: none;
+        }
+
+        .bounce-slow {
+            animation: bounceSlow 3s infinite;
+        }
+
+        @keyframes bounceSlow {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .pulse-slow {
+            animation: pulseSlow 2s infinite;
+        }
+
+        @keyframes pulseSlow {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* Print styles for LKPD */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #printArea, #printArea * {
+                visibility: visible;
+            }
+            #printArea {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                background: white;
+                color: black;
+                padding: 20px;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between overflow-x-hidden">
+
+    <!-- TOP NAVBAR & GLOBAL CONTROLS -->
+    <header class="bg-gradient-to-r from-blue-700 via-indigo-700 to-purple-800 text-white shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="showScreen('landingScreen')">
+                <div class="bg-white text-blue-700 p-2 rounded-xl font-black text-xl shadow-inner">
+                    <i class="fa-solid fa-shield-heart text-pink-500"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-base md:text-lg leading-tight tracking-wide">BERANI PEDULI, BERTINDAK!</h1>
+                    <p class="text-xs text-blue-200">MPI BK Kelas X SMK - Bu Nurul Hidayah, S.Pd.</p>
+                </div>
+            </div>
+
+            <!-- Header Controls -->
+            <div class="flex items-center space-x-2 sm:space-x-4">
+                <!-- Audio Speech Toggle -->
+                <button id="ttsToggleBtn" onclick="toggleAudio()" class="px-3 py-1.5 rounded-full bg-white/20 hover:bg-white/30 text-xs sm:text-sm font-medium transition flex items-center space-x-2">
+                    <i id="ttsIcon" class="fa-solid fa-volume-high text-yellow-300"></i>
+                    <span id="ttsText" class="hidden sm:inline">Suara: ON</span>
+                </button>
+
+                <!-- Navigation Controls -->
+                <button onclick="showScreen('dashboardScreen')" class="px-3 py-1.5 rounded-full bg-yellow-400 hover:bg-yellow-500 text-slate-900 text-xs sm:text-sm font-bold transition flex items-center space-x-1 shadow">
+                    <i class="fa-solid fa-house"></i>
+                    <span class="hidden sm:inline">Menu Utama</span>
+                </button>
+
+                <!-- Progress Indicator -->
+                <div class="hidden md:flex items-center space-x-2 bg-black/20 px-3 py-1 rounded-full text-xs">
+                    <span>Progres:</span>
+                    <div class="w-20 bg-slate-700 rounded-full h-2 overflow-hidden">
+                        <div id="overallProgressBar" class="bg-green-400 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                    <span id="overallProgressText" class="font-bold">0%</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <main class="flex-grow max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+
+        <!-- ================= 0. LANDING / OPENING SCREEN ================= -->
+        <section id="landingScreen" class="screen-section animate-fade-in">
+            <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-100 flex flex-col md:flex-row">
+                <!-- Banner Illustration -->
+                <div class="md:w-1/2 bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 p-8 text-white flex flex-col justify-between relative overflow-hidden">
+                    <div class="relative z-10">
+                        <span class="bg-yellow-400 text-slate-900 text-xs font-black uppercase px-3 py-1 rounded-full tracking-wider shadow">Fase E - Class X SMK</span>
+                        <h2 class="text-3xl sm:text-4xl font-extrabold mt-4 leading-tight">BULLYING:<br><span class="text-yellow-300">BERANI PEDULI, BERANI BERTINDAK!</span></h2>
+                        <p class="mt-3 text-blue-100 text-sm md:text-base">Bersama Menciptakan Lingkungan Sekolah SMK yang Aman, Nyaman, dan Bebas Bullying.</p>
+                    </div>
+
+                    <!-- Cartoon SVG Graphic -->
+                    <div class="my-8 flex justify-center items-center relative z-10">
+                        <svg class="w-64 h-64 bounce-slow" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Background Circle -->
+                            <circle cx="100" cy="100" r="90" fill="#ffffff" fill-opacity="0.15"/>
+                            
+                            <!-- BK Teacher Character -->
+                            <path d="M120 160 C120 130, 160 130, 160 160 Z" fill="#ec4899"/>
+                            <circle cx="140" cy="115" r="20" fill="#fbd5d5"/>
+                            <path d="M125 105 Q140 90 155 105 C155 125 125 125 125 105" fill="#475569"/>
+                            <!-- Glasses -->
+                            <circle cx="133" cy="115" r="5" stroke="#1e293b" stroke-width="2" fill="none"/>
+                            <circle cx="147" cy="115" r="5" stroke="#1e293b" stroke-width="2" fill="none"/>
+                            <line x1="138" y1="115" x2="142" y2="115" stroke="#1e293b" stroke-width="2"/>
+
+                            <!-- SMK Students -->
+                            <!-- Student Boy -->
+                            <path d="M40 170 C40 140, 80 140, 80 170 Z" fill="#2563eb"/>
+                            <circle cx="60" cy="125" r="18" fill="#fde047"/>
+                            <path d="M48 115 Q60 100 72 115 Z" fill="#1e293b"/>
+                            <!-- Student Girl -->
+                            <path d="M80 165 C80 135, 120 135, 120 165 Z" fill="#10b981"/>
+                            <circle cx="100" cy="120" r="18" fill="#fca5a5"/>
+                            <path d="M85 110 Q100 95 115 110 Q100 130 85 110" fill="#9333ea"/>
+                            
+                            <!-- Friendship Shield Icon -->
+                            <path d="M100 40 L120 55 V80 C100 95 100 95 100 95 C100 95 100 95 80 80 V55 L100 40 Z" fill="#f59e0b" stroke="#ffffff" stroke-width="3"/>
+                            <path d="M93 65 L98 70 L108 60" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+
+                    <div class="relative z-10 text-xs text-blue-200 border-t border-white/20 pt-4">
+                        <p class="font-semibold text-white">SMK PERINTIS | Tahun Ajaran 2026/2027</p>
+                        <p>Pengembang: Nurul Hidayah, S.Pd. (Guru BK)</p>
+                    </div>
+                </div>
+
+                <!-- Action & Options -->
+                <div class="md:w-1/2 p-8 flex flex-col justify-center space-y-6">
+                    <div>
+                        <h3 class="text-2xl font-bold text-slate-800">Selamat Datang, Sobat SMK! 👋</h3>
+                        <p class="text-slate-600 text-sm mt-2">Mari kita pelajari bersama cara membangun sekolah yang aman, nyaman, dan saling mendukung tanpa bullying.</p>
+                    </div>
+
+                    <div class="space-y-4">
+                        <button onclick="speakText('Selamat datang di media pembelajaran interaktif anti bullying. Silakan klik tombol mulai pembelajaran.'); showScreen('dashboardScreen');" class="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-lg shadow-lg hover:shadow-xl hover:scale-[1.02] transition transform flex items-center justify-between">
+                            <span><i class="fa-solid fa-play-circle mr-3 text-yellow-300"></i> MULAI PEMBELAJARAN</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+
+                        <button onclick="openModal('guideModal')" class="w-full py-3.5 px-6 rounded-2xl bg-indigo-50 text-indigo-700 font-semibold border border-indigo-100 hover:bg-indigo-100 transition flex items-center justify-between">
+                            <span><i class="fa-solid fa-circle-info mr-3"></i> PETUNJUK PENGGUNAAN</span>
+                            <i class="fa-solid fa-chevron-right text-xs"></i>
+                        </button>
+
+                        <button onclick="showScreen('menu7')" class="w-full py-3.5 px-6 rounded-2xl bg-slate-50 text-slate-700 font-semibold border border-slate-200 hover:bg-slate-100 transition flex items-center justify-between">
+                            <span><i class="fa-solid fa-user-tie mr-3 text-purple-600"></i> TENTANG PENGEMBANG</span>
+                            <i class="fa-solid fa-chevron-right text-xs"></i>
+                        </button>
+                    </div>
+
+                    <!-- Audio Note -->
+                    <div class="p-4 bg-amber-50 rounded-xl border border-amber-200 flex items-start space-x-3 text-xs text-amber-800">
+                        <i class="fa-solid fa-volume-high text-amber-600 mt-0.5"></i>
+                        <p>MPI ini dilengkapi dengan suara narasi berbahasa Indonesia otomatis. Pastikan volume perangkat Anda aktif.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= DASHBOARD MAIN MENU ================= -->
+        <section id="dashboardScreen" class="screen-section hidden animate-fade-in">
+            <div class="mb-6 text-center md:text-left flex flex-col md:flex-row md:items-center justify-between bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                <div>
+                    <h2 class="text-2xl font-extrabold text-slate-800">Dashboard Utama Pembelajaran</h2>
+                    <p class="text-slate-500 text-sm">Pilih salah satu dari 7 menu interaktif di bawah ini untuk memulai.</p>
+                </div>
+                <div class="mt-4 md:mt-0 flex items-center space-x-2">
+                    <button onclick="resetProgress()" class="px-3 py-1.5 text-xs bg-red-50 text-red-600 hover:bg-red-100 rounded-lg font-medium transition">
+                        <i class="fa-solid fa-rotate-right mr-1"></i> Reset Progres
+                    </button>
+                </div>
+            </div>
+
+            <!-- Grid 7 Main Menus -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Menu 1: Materi -->
+                <div onclick="showScreen('menu1')" class="bg-white rounded-2xl p-6 shadow-md border-2 border-transparent hover:border-blue-500 hover:shadow-xl transition cursor-pointer group relative overflow-hidden">
+                    <div class="w-14 h-14 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center text-2xl font-bold mb-4 group-hover:scale-110 transition">
+                        <i class="fa-solid fa-book-open"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-800 group-hover:text-blue-600 transition">1. Materi Pembelajaran</h3>
+                    <p class="text-xs text-slate-500 mt-2 leading-relaxed">Pelajari pengertian, jenis-jenis, faktor penyebab, serta cara mengatasi bullying di sekolah.</p>
+                    <div class="mt-4 flex items-center justify-between text-xs font-semibold">
+                        <span id="badge-menu1" class="px-2.5 py-1 bg-slate-100 text-slate-500 rounded-full">Belum Selesai</span>
+                        <span class="text-blue-600 group-hover:translate-x-1 transition">Buka <i class="fa-solid fa-arrow-right"></i></span>
+                    </div>
+                </div>
+
+                <!-- Menu 2: Simulasi Interaktif -->
+                <div onclick="showScreen('menu2')" class="bg-white rounded-2xl p-6 shadow-md border-2 border-transparent hover:border-purple-500 hover:shadow-xl transition cursor-pointer group relative overflow-hidden">
+                    <div class="w-14 h-14 bg-purple-100 text-purple-600 rounded-2xl flex items-center justify-center text-2xl font-bold mb-4 group-hover:scale-110 transition">
+                        <i class="fa-solid fa-comments"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-800 group-hover:text-purple-600 transition">2. Simulasi Interaktif</h3>
+                    <p class="text-xs text-slate-500 mt-2 leading-relaxed">Game pengambilan keputusan berbasis cerita realitas siswa SMK (Andi, Budi, Siti).</p>
+                    <div class="mt-4 flex items-center justify-between text-xs font-semibold">
+                        <span id="badge-menu2" class="px-2.5 py-1 bg-slate-100 text-slate-500 rounded-full">Belum Selesai</span>
+                        <span class="text-purple-600 group-hover:translate-x-1 transition">Buka <i class="fa-solid fa-arrow-right"></i></span>
+                    </div>
+                </div>
+
+                <!-- Menu 3: Praktikum -->
+                <div onclick="showScreen('menu3')" class="bg-white rounded-2xl p-6 shadow-md border-2 border-transparent hover:border-indigo-500 hover:shadow-xl transition cursor-pointer group relative overflow-hidden">
+                    <div class="w-14 h-14 bg-indigo-100 text-indigo-600 rounded-2xl flex items-center justify-center text-2xl font-bold mb-4 group-hover:scale-110 transition">
+                        <i class="fa-solid fa-user-secret"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-800 group-hover:text-indigo-600 transition">3. Misi Detektif Anti-Bullying</h3>
+                    <p class="text-xs text-slate-500 mt-2 leading-relaxed">Praktikum analisis kasus fiktif dan perancangan deklarasi kelas aman.</p>
+                    <div class="mt-4 flex items-center justify-between text-xs font-semibold">
+                        <span id="badge-menu3" class="px-2.5 py-1 bg-slate-100 text-slate-500 rounded-full">Belum Selesai</span>
+                        <span class="text-indigo-600 group-hover:translate-x-1 transition">Buka <i class="fa-solid fa-arrow-right"></i></span>
+                    </div>
+                </div>
+
+                <!-- Menu 4: Game Edukasi -->
+                <div onclick="showScreen('menu4')" class="bg-white rounded-2xl p-6 shadow-md border-2 border-transparent hover:border-pink-500 hover:shadow-xl transition cursor-pointer group relative overflow-hidden">
+                    <div class="w-14 h-14 bg-pink-100 text-pink-600 rounded-2xl flex items-center justify-center text-2xl font-bold mb-4 group-hover:scale-110 transition">
+                        <i class="fa-solid fa-gamepad"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-800 group-hover:text-pink-600 transition">4. Game Edukasi</h3>
+                    <p class="text-xs text-slate-500 mt-2 leading-relaxed">3 Mini Game seru: Tebak Jenis Bullying, Benar/Salah, & Pahlawan Anti-Bullying.</p>
+                    <div class="mt-4 flex items-center justify-between text-xs font-semibold">
+                        <span id="badge-menu4" class="px-2.5 py-1 bg-slate-100 text-slate-500 rounded-full">Belum Selesai</span>
+                        <span class="text-pink-600 group-hover:translate-x-1 transition">Buka <i class="fa-solid fa-arrow-right"></i></span>
+                    </div>
+                </div>
+
+                <!-- Menu 5: LKPD -->
+                <div onclick="showScreen('menu5')" class="bg-white rounded-2xl p-6 shadow-md border-2 border-transparent hover:border-amber-500 hover:shadow-xl transition cursor-pointer group relative overflow-hidden">
+                    <div class="w-14 h-14 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center text-2xl font-bold mb-4 group-hover:scale-110 transition">
+                        <i class="fa-solid fa-file-pen"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-800 group-hover:text-amber-600 transition">5. LKPD Digital</h3>
+                    <p class="text-xs text-slate-500 mt-2 leading-relaxed">Lembar Kerja Peserta Didik interaktif dengan fasilitas cetak PDF / simpan.</p>
+                    <div class="mt-4 flex items-center justify-between text-xs font-semibold">
+                        <span id="badge-menu5" class="px-2.5 py-1 bg-slate-100 text-slate-500 rounded-full">Belum Selesai</span>
+                        <span class="text-amber-600 group-hover:translate-x-1 transition">Buka <i class="fa-solid fa-arrow-right"></i></span>
+                    </div>
+                </div>
+
+                <!-- Menu 6: Evaluasi -->
+                <div onclick="showScreen('menu6')" class="bg-white rounded-2xl p-6 shadow-md border-2 border-transparent hover:border-emerald-500 hover:shadow-xl transition cursor-pointer group relative overflow-hidden">
+                    <div class="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center text-2xl font-bold mb-4 group-hover:scale-110 transition">
+                        <i class="fa-solid fa-square-check"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-800 group-hover:text-emerald-600 transition">6. Evaluasi Pemahaman</h3>
+                    <p class="text-xs text-slate-500 mt-2 leading-relaxed">Tes Interaktif 17 Soal (Pilihan Ganda, Benar/Salah, & Studi Kasus) berpembahasan.</p>
+                    <div class="mt-4 flex items-center justify-between text-xs font-semibold">
+                        <span id="badge-menu6" class="px-2.5 py-1 bg-slate-100 text-slate-500 rounded-full">Belum Selesai</span>
+                        <span class="text-emerald-600 group-hover:translate-x-1 transition">Buka <i class="fa-solid fa-arrow-right"></i></span>
+                    </div>
+                </div>
+
+                <!-- Menu 7: Profil Pengembang -->
+                <div onclick="showScreen('menu7')" class="bg-white rounded-2xl p-6 shadow-md border-2 border-transparent hover:border-cyan-500 hover:shadow-xl transition cursor-pointer group sm:col-span-2 lg:col-span-1 relative overflow-hidden">
+                    <div class="w-14 h-14 bg-cyan-100 text-cyan-600 rounded-2xl flex items-center justify-center text-2xl font-bold mb-4 group-hover:scale-110 transition">
+                        <i class="fa-solid fa-id-card"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-800 group-hover:text-cyan-600 transition">7. Profil Pengembang</h3>
+                    <p class="text-xs text-slate-500 mt-2 leading-relaxed">Informasi Guru BK Pengembang (Nurul Hidayah, S.Pd.) & Pesan Inspiratif Anti-Bullying.</p>
+                    <div class="mt-4 flex items-center justify-between text-xs font-semibold">
+                        <span id="badge-menu7" class="px-2.5 py-1 bg-slate-100 text-slate-500 rounded-full">Informasi</span>
+                        <span class="text-cyan-600 group-hover:translate-x-1 transition">Lihat <i class="fa-solid fa-arrow-right"></i></span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= MENU 1: MATERI PEMBELAJARAN ================= -->
+        <section id="menu1" class="screen-section hidden animate-fade-in">
+            <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-200">
+                <!-- Slide Header -->
+                <div class="bg-gradient-to-r from-blue-600 to-indigo-700 p-6 text-white flex flex-wrap justify-between items-center">
+                    <div>
+                        <span class="text-xs bg-white/20 px-3 py-1 rounded-full uppercase font-bold tracking-wider">Menu 1: Slide Interaktif</span>
+                        <h2 id="materiTitle" class="text-xl sm:text-2xl font-bold mt-1">1. Pengertian Bullying</h2>
+                    </div>
+                    <div class="flex items-center space-x-2 mt-2 sm:mt-0">
+                        <button onclick="repeatMateriAudio()" class="px-3 py-1.5 bg-yellow-400 text-slate-900 rounded-xl text-xs font-bold hover:bg-yellow-500 transition">
+                            <i class="fa-solid fa-rotate-right mr-1"></i> Putar Narasi
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Slide Body -->
+                <div class="p-6 md:p-8 grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                    <!-- Left: Illustration -->
+                    <div class="md:col-span-5 flex justify-center bg-slate-50 p-6 rounded-2xl border border-slate-100">
+                        <div id="materiIllustration" class="w-full max-w-[240px] text-center">
+                            <!-- Dynamic SVG illustration content inserted via JS -->
+                        </div>
+                    </div>
+
+                    <!-- Right: Content & School Example -->
+                    <div class="md:col-span-7 space-y-4">
+                        <div class="bg-blue-50/60 p-5 rounded-2xl border border-blue-100">
+                            <h4 class="text-xs font-bold uppercase tracking-wider text-blue-700 mb-1"><i class="fa-solid fa-book text-blue-500 mr-1"></i> Penjelasan Ringkas</h4>
+                            <p id="materiText" class="text-slate-700 text-sm md:text-base leading-relaxed">
+                                Bullying (perundungan) adalah perilaku agresif yang dilakukan secara sengaja dan berulang-ulang oleh seseorang atau sekelompok orang yang lebih kuat terhadap seseorang yang lebih lemah...
+                            </p>
+                        </div>
+
+                        <div class="bg-amber-50 p-5 rounded-2xl border border-amber-200">
+                            <h4 class="text-xs font-bold uppercase tracking-wider text-amber-800 mb-1"><i class="fa-solid fa-school text-amber-600 mr-1"></i> Contoh Realitas di SMK</h4>
+                            <p id="materiExample" class="text-slate-700 text-sm leading-relaxed">
+                                Di bengkel praktikum SMK, seorang siswa baru sering dipaksa membersihkan oli bekas sendirian oleh seniornya setiap hari...
+                            </p>
+                        </div>
+
+                        <!-- Mini Quiz Section per Sub-materi -->
+                        <div id="materiMiniQuiz" class="bg-purple-50 p-4 rounded-2xl border border-purple-200">
+                            <p class="text-xs font-bold text-purple-900 mb-2">⚡ Kuis Cepat Pemahaman:</p>
+                            <p id="miniQuizQuestion" class="text-xs font-medium text-slate-700 mb-3">Apakah bercanda berulang kali hingga membuat teman menangis termasuk bullying?</p>
+                            <div id="miniQuizOptions" class="flex space-x-3">
+                                <button onclick="checkMiniQuiz(true)" class="px-4 py-1.5 bg-purple-600 text-white rounded-xl text-xs font-semibold hover:bg-purple-700">Ya, Bullying</button>
+                                <button onclick="checkMiniQuiz(false)" class="px-4 py-1.5 bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold hover:bg-slate-300">Bukan Bullying</button>
+                            </div>
+                            <p id="miniQuizFeedback" class="text-xs font-bold mt-2 hidden"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Slide Navigation Footer -->
+                <div class="bg-slate-50 p-4 border-t border-slate-200 flex justify-between items-center">
+                    <button id="prevMateriBtn" onclick="changeMateri(-1)" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-xl font-bold text-sm hover:bg-slate-300 transition">
+                        <i class="fa-solid fa-chevron-left mr-1"></i> Sebelumnya
+                    </button>
+                    
+                    <span id="materiPageNum" class="text-xs font-bold text-slate-500">Submateri 1 / 12</span>
+
+                    <button id="nextMateriBtn" onclick="changeMateri(1)" class="px-4 py-2 bg-blue-600 text-white rounded-xl font-bold text-sm hover:bg-blue-700 transition">
+                        Selanjutnya <i class="fa-solid fa-chevron-right ml-1"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= MENU 2: SIMULASI INTERAKTIF ================= -->
+        <section id="menu2" class="screen-section hidden animate-fade-in">
+            <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-200">
+                <div class="bg-gradient-to-r from-purple-600 to-indigo-700 p-6 text-white flex justify-between items-center">
+                    <div>
+                        <span class="text-xs bg-white/20 px-3 py-1 rounded-full uppercase font-bold tracking-wider">Menu 2: Decision Game</span>
+                        <h2 class="text-xl sm:text-2xl font-bold mt-1">Simulasi Interaktif Pilihan Sikap</h2>
+                    </div>
+                    <div class="text-sm font-semibold bg-white/20 px-3 py-1 rounded-xl" id="simScenarioIndicator">
+                        Skenario 1 / 3
+                    </div>
+                </div>
+
+                <div class="p-6 md:p-8 space-y-6">
+                    <!-- Scenario Graphic & Description -->
+                    <div class="bg-purple-50 rounded-2xl p-6 border border-purple-100 flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-6">
+                        <div class="w-32 h-32 flex-shrink-0 bg-white rounded-2xl shadow p-2 flex items-center justify-center" id="simCharacterIcon">
+                            <!-- SVG Character Icon -->
+                        </div>
+                        <div>
+                            <span class="text-xs font-bold text-purple-700 uppercase tracking-wider" id="simCategory">Skenario Body Shaming</span>
+                            <h3 class="text-lg font-bold text-slate-800 mt-1" id="simTitle">Ejekan Fisik Di Kantin SMK</h3>
+                            <p class="text-sm text-slate-600 mt-2 leading-relaxed" id="simDescription">
+                                Andi sedang makan siang di kantin. Budi dan beberapa temannya tertawa keras sambil mengejek bentuk tubuh Andi dengan sebutan yang menyakitkan...
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Interactive Choices -->
+                    <div>
+                        <h4 class="text-sm font-bold text-slate-700 uppercase tracking-wider mb-3">Apa Tindakan Yang Akan Kamu Ambil?</h4>
+                        <div id="simChoicesContainer" class="grid grid-cols-1 gap-3">
+                            <!-- Choice buttons injected by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Feedback Box (Hidden initially) -->
+                    <div id="simFeedbackBox" class="hidden p-5 rounded-2xl border transition-all duration-300">
+                        <h4 id="simFeedbackTitle" class="font-bold text-base mb-1"></h4>
+                        <p id="simFeedbackText" class="text-sm leading-relaxed mb-3"></p>
+                        <div class="bg-white/60 p-3 rounded-xl text-xs font-semibold" id="simEducationalNote"></div>
+                        <div class="mt-4 flex justify-end space-x-3">
+                            <button onclick="repeatScenario()" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-xl text-xs font-bold hover:bg-slate-300">Coba Pilihan Lain</button>
+                            <button id="nextScenarioBtn" onclick="nextScenario()" class="px-4 py-2 bg-purple-600 text-white rounded-xl text-xs font-bold hover:bg-purple-700">Lanjut Skenario Berikutnya <i class="fa-solid fa-arrow-right ml-1"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= MENU 3: PRAKTIKUM DETEKTIF ANTI-BULLYING ================= -->
+        <section id="menu3" class="screen-section hidden animate-fade-in">
+            <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-200">
+                <div class="bg-gradient-to-r from-indigo-700 via-purple-700 to-blue-700 p-6 text-white flex justify-between items-center">
+                    <div>
+                        <span class="text-xs bg-yellow-400 text-slate-900 px-3 py-1 rounded-full uppercase font-black tracking-wider">Menu 3: Praktikum</span>
+                        <h2 class="text-xl sm:text-2xl font-bold mt-1">🔍 Misi Detektif Anti-Bullying</h2>
+                    </div>
+                    <i class="fa-solid fa-user-secret text-4xl text-white/30"></i>
+                </div>
+
+                <div class="p-6 md:p-8 space-y-6">
+                    <!-- Instructions -->
+                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-xs text-slate-600 flex items-start space-x-3">
+                        <i class="fa-solid fa-circle-info text-indigo-600 text-base mt-0.5"></i>
+                        <p><strong>Petunjuk Misi:</strong> Bacalah studi kasus fiktif di bawah ini. Selesaikan 6 Langkah Investigasi Detektif untuk mengidentifikasi kasus dan merumuskan solusi aksi pencegahan.</p>
+                    </div>
+
+                    <!-- Fictional Case Study Card -->
+                    <div class="bg-indigo-50/50 p-6 rounded-2xl border border-indigo-100">
+                        <span class="text-xs font-bold text-indigo-700 bg-indigo-100 px-2.5 py-1 rounded-md">BERKAS KASUS #2026-SMK</span>
+                        <h3 class="text-lg font-bold text-slate-800 mt-2">Pengucilan & Cyberbullying Di Kelompok Praktikum</h3>
+                        <p class="text-sm text-slate-700 mt-2 leading-relaxed">
+                            Rani adalah siswi kelas X jurusan RPL. Di kelas, ia tidak dimasukkan ke dalam grup WhatsApp tugas kelompok oleh beberapa rekannya. Ketika Rani bertanya soal tugas, rekan-rekannya sengaja mengabaikannya. Tidak hanya itu, seseorang membuat stiker WhatsApp berisi foto Rani yang diedit lucu secara ejekan dan menyebarkannya di grup angkatan. Akibatnya Rani menjadi pendiam, nilai praktikumnya turun, dan ia sering berpura-pura sakit agar tidak masuk sekolah.
+                        </p>
+                    </div>
+
+                    <!-- 6 Detective Steps Form -->
+                    <form id="detectiveForm" onsubmit="evaluateDetectiveMission(event)" class="space-y-4">
+                        <!-- Step 1 -->
+                        <div class="p-4 bg-white border border-slate-200 rounded-2xl">
+                            <label class="block text-sm font-bold text-slate-800 mb-1">Kegiatan 1: Apakah peristiwa di atas termasuk perundungan (bullying)? Mengapa?</label>
+                            <textarea id="detStep1" required class="w-full p-3 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none" rows="2" placeholder="Tuliskan analisis awalmu..."></textarea>
+                        </div>
+
+                        <!-- Step 2 -->
+                        <div class="p-4 bg-white border border-slate-200 rounded-2xl">
+                            <label class="block text-sm font-bold text-slate-800 mb-1">Kegiatan 2: Jenis bullying apa saja yang terjadi pada kasus Rani?</label>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs mt-2">
+                                <label class="flex items-center space-x-2 p-2 bg-slate-50 rounded-lg cursor-pointer hover:bg-slate-100">
+                                    <input type="checkbox" id="detTypeFisik" class="rounded text-indigo-600"> <span>Bullying Fisik</span>
+                                </label>
+                                <label class="flex items-center space-x-2 p-2 bg-slate-50 rounded-lg cursor-pointer hover:bg-slate-100">
+                                    <input type="checkbox" id="detTypeVerbal" class="rounded text-indigo-600"> <span>Bullying Verbal</span>
+                                </label>
+                                <label class="flex items-center space-x-2 p-2 bg-slate-50 rounded-lg cursor-pointer hover:bg-slate-100">
+                                    <input type="checkbox" id="detTypeSosial" class="rounded text-indigo-600"> <span>Bullying Relasional</span>
+                                </label>
+                                <label class="flex items-center space-x-2 p-2 bg-slate-50 rounded-lg cursor-pointer hover:bg-slate-100">
+                                    <input type="checkbox" id="detTypeCyber" class="rounded text-indigo-600"> <span>Cyberbullying</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Step 3 -->
+                        <div class="p-4 bg-white border border-slate-200 rounded-2xl">
+                            <label class="block text-sm font-bold text-slate-800 mb-1">Kegiatan 3: Siapa sajakah pihak yang terdampak langsung dan tidak langsung?</label>
+                            <input type="text" id="detStep3" required class="w-full p-3 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500" placeholder="Sebutkan korban, pelaku, dan saksi di grup WA...">
+                        </div>
+
+                        <!-- Step 4 -->
+                        <div class="p-4 bg-white border border-slate-200 rounded-2xl">
+                            <label class="block text-sm font-bold text-slate-800 mb-1">Kegiatan 4: Dampak negatif apa yang dialami Rani (psikologis & akademis)?</label>
+                            <textarea id="detStep4" required class="w-full p-3 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500" rows="2" placeholder="Analisis dampak kesehatan mental dan nilainya..."></textarea>
+                        </div>
+
+                        <!-- Step 5 -->
+                        <div class="p-4 bg-white border border-slate-200 rounded-2xl">
+                            <label class="block text-sm font-bold text-slate-800 mb-1">Kegiatan 5: Apa langkah konkrit yang harus dilakukan teman sekelas yang melihat hal ini?</label>
+                            <textarea id="detStep5" required class="w-full p-3 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500" rows="2" placeholder="Tindakan saksi yang peduli dan berani..."></textarea>
+                        </div>
+
+                        <!-- Step 6 -->
+                        <div class="p-4 bg-purple-50 border border-purple-200 rounded-2xl">
+                            <label class="block text-sm font-bold text-purple-900 mb-1">Kegiatan 6: Buat Deklarasi Singkat Kelas Anti-Bullying versi Detektifmu!</label>
+                            <input type="text" id="detStep6" required class="w-full p-3 border border-purple-300 rounded-xl text-sm focus:ring-2 focus:ring-purple-500" placeholder="Contoh: Kami Kelas X Berjanji Merangkul Semua Teman Tanpa Pengucilan!">
+                        </div>
+
+                        <button type="submit" class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl shadow transition">
+                            <i class="fa-solid fa-check-circle mr-2"></i> Periksa & Kirim Hasil Investigasi Detektif
+                        </button>
+                    </form>
+
+                    <!-- Feedback Output -->
+                    <div id="detectiveFeedback" class="hidden p-6 bg-emerald-50 border border-emerald-200 rounded-2xl space-y-3">
+                        <div class="flex items-center space-x-3 text-emerald-800">
+                            <i class="fa-solid fa-award text-3xl text-emerald-600"></i>
+                            <div>
+                                <h4 class="font-bold text-base">Misi Detektif Selesai Dengan Baik! 🏅</h4>
+                                <p class="text-xs text-emerald-700">Analisis kasusmu menunjukkan kepedulian dan pemahaman yang sangat tinggi.</p>
+                            </div>
+                        </div>
+                        <div class="text-xs text-slate-700 bg-white p-4 rounded-xl border border-emerald-100 space-y-2">
+                            <p><strong>Umpan Balik Guru BK:</strong> Kasus Rani mencakup <strong>Bullying Relasional (Pengucilan)</strong> dan <strong>Cyberbullying (Penyebaran Stiker Ejekan)</strong>. Tindakan paling tepat bagi saksi adalah menegur di grup, tidak menyebarkan stiker, merangkul Rani ke kelompok tugas, dan melaporkannya kepada Guru BK.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= MENU 4: GAME EDUKASI ================= -->
+        <section id="menu4" class="screen-section hidden animate-fade-in">
+            <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-200">
+                <div class="bg-gradient-to-r from-pink-600 via-rose-600 to-purple-600 p-6 text-white flex justify-between items-center">
+                    <div>
+                        <span class="text-xs bg-white/20 px-3 py-1 rounded-full uppercase font-bold tracking-wider">Menu 4: Arcade Learning</span>
+                        <h2 class="text-xl sm:text-2xl font-bold mt-1">🎮 Petualangan Sekolah Bebas Bullying</h2>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-xs text-pink-200">Skor Total Game:</span>
+                        <div id="gameTotalScore" class="text-2xl font-black text-yellow-300">0 Poin</div>
+                    </div>
+                </div>
+
+                <!-- Sub-Game Selector Tabs -->
+                <div class="flex border-b border-slate-200 bg-slate-50 overflow-x-auto">
+                    <button id="tabGame1" onclick="switchMiniGame(1)" class="flex-1 min-w-[140px] py-3.5 px-4 text-xs sm:text-sm font-bold border-b-2 border-pink-600 text-pink-600 bg-white">
+                        1. Tebak Jenis
+                    </button>
+                    <button id="tabGame2" onclick="switchMiniGame(2)" class="flex-1 min-w-[140px] py-3.5 px-4 text-xs sm:text-sm font-bold border-b-2 border-transparent text-slate-500 hover:text-pink-600">
+                        2. Benar atau Salah
+                    </button>
+                    <button id="tabGame3" onclick="switchMiniGame(3)" class="flex-1 min-w-[140px] py-3.5 px-4 text-xs sm:text-sm font-bold border-b-2 border-transparent text-slate-500 hover:text-pink-600">
+                        3. Pahlawan Anti-Bullying
+                    </button>
+                </div>
+
+                <div class="p-6 md:p-8">
+                    <!-- GAME 1: Tebak Jenis -->
+                    <div id="miniGame1Area" class="space-y-6">
+                        <div class="text-center max-w-lg mx-auto">
+                            <span class="text-xs font-bold text-pink-600 bg-pink-50 px-3 py-1 rounded-full">Mini Game 1</span>
+                            <h3 class="text-lg font-bold text-slate-800 mt-2" id="g1QuestionTitle">Cocokkan Kasus Dengan Jenis Bullying!</h3>
+                            <p class="text-xs text-slate-500 mt-1">Pilihlah kategori jenis bullying yang paling tepat untuk situasi berikut.</p>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-slate-50 to-pink-50/30 p-6 rounded-2xl border border-pink-100 text-center max-w-xl mx-auto">
+                            <div class="text-4xl mb-3" id="g1Emoji">📱</div>
+                            <p class="text-base font-semibold text-slate-800" id="g1ScenarioText">
+                                "Mengirim pesan ancaman terus menerus di DM Instagram teman sekelas."
+                            </p>
+                        </div>
+
+                        <div id="g1Options" class="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-2xl mx-auto">
+                            <button onclick="answerGame1('fisik')" class="p-3 bg-white border-2 border-slate-200 hover:border-pink-500 rounded-xl font-bold text-xs sm:text-sm text-slate-700 hover:text-pink-600 transition">Bullying Fisik</button>
+                            <button onclick="answerGame1('verbal')" class="p-3 bg-white border-2 border-slate-200 hover:border-pink-500 rounded-xl font-bold text-xs sm:text-sm text-slate-700 hover:text-pink-600 transition">Bullying Verbal</button>
+                            <button onclick="answerGame1('relasional')" class="p-3 bg-white border-2 border-slate-200 hover:border-pink-500 rounded-xl font-bold text-xs sm:text-sm text-slate-700 hover:text-pink-600 transition">Bullying Relasional</button>
+                            <button onclick="answerGame1('cyber')" class="p-3 bg-white border-2 border-slate-200 hover:border-pink-500 rounded-xl font-bold text-xs sm:text-sm text-slate-700 hover:text-pink-600 transition">Cyberbullying</button>
+                        </div>
+                    </div>
+
+                    <!-- GAME 2: Benar atau Salah -->
+                    <div id="miniGame2Area" class="hidden space-y-6">
+                        <div class="text-center max-w-lg mx-auto">
+                            <span class="text-xs font-bold text-pink-600 bg-pink-50 px-3 py-1 rounded-full">Mini Game 2</span>
+                            <h3 class="text-lg font-bold text-slate-800 mt-2">Tantangan Benar atau Salah</h3>
+                            <p class="text-xs text-slate-500 mt-1">Uji kejelianmu membedakan mitos dan fakta seputar perundungan.</p>
+                        </div>
+
+                        <div class="bg-amber-50/60 p-6 rounded-2xl border border-amber-200 text-center max-w-xl mx-auto">
+                            <p class="text-base font-semibold text-slate-800" id="g2StatementText">
+                                "Menatap dengan sinis dan menyebarkan rumor tidak menyakitkan karena tidak ada kontak fisik."
+                            </p>
+                        </div>
+
+                        <div class="flex justify-center space-x-4">
+                            <button onclick="answerGame2(true)" class="px-8 py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-black rounded-2xl shadow-lg transition transform hover:scale-105 flex items-center space-x-2">
+                                <i class="fa-solid fa-check text-lg"></i>
+                                <span>BENAR</span>
+                            </button>
+                            <button onclick="answerGame2(false)" class="px-8 py-3 bg-rose-500 hover:bg-rose-600 text-white font-black rounded-2xl shadow-lg transition transform hover:scale-105 flex items-center space-x-2">
+                                <i class="fa-solid fa-xmark text-lg"></i>
+                                <span>SALAH</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- GAME 3: Pahlawan Anti-Bullying -->
+                    <div id="miniGame3Area" class="hidden space-y-6">
+                        <div class="text-center max-w-lg mx-auto">
+                            <span class="text-xs font-bold text-pink-600 bg-pink-50 px-3 py-1 rounded-full">Mini Game 3</span>
+                            <h3 class="text-lg font-bold text-slate-800 mt-2">Misi Pahlawan Sekolah</h3>
+                            <p class="text-xs text-slate-500 mt-1">Pilih respon terbaik dalam situasi kritis berikut.</p>
+                        </div>
+
+                        <div class="bg-indigo-50 p-6 rounded-2xl border border-indigo-100 max-w-xl mx-auto text-slate-800">
+                            <h4 class="font-bold text-sm text-indigo-700" id="g3SituationTitle">Situasi: Penodatan Uang Saku di Gerbang Sekolah</h4>
+                            <p class="text-sm mt-1" id="g3SituationDesc">Kamu melihat junior dimintai uang secara paksa oleh sekelompok siswa senior di dekat bengkel SMK.</p>
+                        </div>
+
+                        <div id="g3Choices" class="grid grid-cols-1 gap-3 max-w-xl mx-auto">
+                            <!-- Injected choices -->
+                        </div>
+                    </div>
+
+                    <!-- Game Status / Feedback Modal Toast -->
+                    <div id="gameFeedbackAlert" class="hidden mt-6 p-4 rounded-2xl text-center text-sm font-bold animate-bounce"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= MENU 5: LKPD DIGITAL ================= -->
+        <section id="menu5" class="screen-section hidden animate-fade-in">
+            <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-200" id="printArea">
+                <!-- LKPD Header -->
+                <div class="bg-gradient-to-r from-amber-500 via-orange-600 to-yellow-600 p-6 text-white flex justify-between items-center no-print">
+                    <div>
+                        <span class="text-xs bg-white/20 px-3 py-1 rounded-full uppercase font-bold tracking-wider">Menu 5: Lembar Kerja</span>
+                        <h2 class="text-xl sm:text-2xl font-bold mt-1">LEMBAR KERJA PESERTA DIDIK (LKPD) DIGITAL</h2>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button onclick="window.print()" class="px-3 py-1.5 bg-white text-slate-900 rounded-xl text-xs font-bold hover:bg-slate-100 transition">
+                            <i class="fa-solid fa-print mr-1"></i> Cetak / Simpan PDF
+                        </button>
+                    </div>
+                </div>
+
+                <div class="p-6 md:p-8 space-y-6">
+                    <!-- Title for Print -->
+                    <div class="hidden print:block text-center border-b pb-4 mb-4">
+                        <h2 class="text-xl font-bold">LEMBAR KERJA PESERTA DIDIK (LKPD) BIMBINGAN KONSELING</h2>
+                        <p class="text-xs">Materi: Perundungan (Bullying) | SMK PERINTIS - Tahun 2026/2027</p>
+                    </div>
+
+                    <!-- Student Identity -->
+                    <div class="bg-amber-50/50 p-5 rounded-2xl border border-amber-200 grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Nama Lengkap Siswa:</label>
+                            <input type="text" id="lkpdNama" class="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-amber-500" placeholder="Ketik nama lengkap...">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Kelas / Konsentrasi Keahlian:</label>
+                            <input type="text" id="lkpdKelas" class="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-amber-500" placeholder="Contoh: X RPL 1 / X TKR 2">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Tanggal Pengisian:</label>
+                            <input type="date" id="lkpdTanggal" class="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-amber-500">
+                        </div>
+                    </div>
+
+                    <!-- LKPD Questions List -->
+                    <div class="space-y-4">
+                        <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl">
+                            <h4 class="font-bold text-sm text-slate-800 mb-1">1. Identifikasi & Pemahaman:</h4>
+                            <p class="text-xs text-slate-600 mb-2">Menurut pendapatmu sendiri, apa perbedaan paling mendasar antara pertengkaran/konflik biasa dengan perilaku bullying?</p>
+                            <textarea id="lkpdQ1" rows="3" class="w-full p-3 bg-white border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-amber-500" placeholder="Tuliskan jawabanmu di sini..."></textarea>
+                        </div>
+
+                        <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl">
+                            <h4 class="font-bold text-sm text-slate-800 mb-1">2. Analisis Kasus Lingkungan SMK:</h4>
+                            <p class="text-xs text-slate-600 mb-2">Pernahkah kamu melihat atau mendengar tindakan cyberbullying di media sosial teman sekelas? Apa dampak yang dialami korban?</p>
+                            <textarea id="lkpdQ2" rows="3" class="w-full p-3 bg-white border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-amber-500" placeholder="Tuliskan jawabanmu di sini..."></textarea>
+                        </div>
+
+                        <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl">
+                            <h4 class="font-bold text-sm text-slate-800 mb-1">3. Alternatif Penyelesaian & Peran Saksi:</h4>
+                            <p class="text-xs text-slate-600 mb-2">Jika kamu melihat temanmu dikucilkan saat kerja kelompok di laboratorium/bengkel, langkah nyata apa yang akan kamu lakukan?</p>
+                            <textarea id="lkpdQ3" rows="3" class="w-full p-3 bg-white border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-amber-500" placeholder="Tuliskan jawabanmu di sini..."></textarea>
+                        </div>
+
+                        <div class="p-4 bg-amber-50 border border-amber-200 rounded-2xl">
+                            <h4 class="font-bold text-sm text-amber-900 mb-1">4. Lembar Komitmen Anti-Bullying Pribadi:</h4>
+                            <p class="text-xs text-amber-800 mb-2">Tuliskan 1 ikrar/komitmen pribadimu untuk menciptakan lingkungan SMK PERINTIS yang aman dan peduli!</p>
+                            <input type="text" id="lkpdQ4" class="w-full p-3 bg-white border border-amber-300 rounded-xl text-sm font-semibold text-amber-900 focus:ring-2 focus:ring-amber-500" placeholder="Contoh: Saya berjanji tidak akan pernah menyebarkan gosip atau memanggil teman dengan julukan fisik.">
+                        </div>
+                    </div>
+
+                    <!-- LKPD Buttons -->
+                    <div class="flex flex-wrap gap-3 justify-end no-print pt-4 border-t border-slate-200">
+                        <button onclick="clearLKPD()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl font-bold text-xs transition">
+                            <i class="fa-solid fa-trash mr-1"></i> Kosongkan Jawaban
+                        </button>
+                        <button onclick="saveLKPD()" class="px-6 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-bold text-xs shadow transition">
+                            <i class="fa-solid fa-floppy-disk mr-1"></i> Simpan Progres LKPD
+                        </button>
+                        <button onclick="window.print()" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-xs shadow transition">
+                            <i class="fa-solid fa-file-pdf mr-1"></i> Cetak / Download PDF
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= MENU 6: EVALUASI PEMAHAMAN ================= -->
+        <section id="menu6" class="screen-section hidden animate-fade-in">
+            <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-200">
+                <div class="bg-gradient-to-r from-emerald-600 to-teal-700 p-6 text-white flex justify-between items-center">
+                    <div>
+                        <span class="text-xs bg-white/20 px-3 py-1 rounded-full uppercase font-bold tracking-wider">Menu 6: Tes Interaktif</span>
+                        <h2 class="text-xl sm:text-2xl font-bold mt-1">Evaluasi Pemahaman Pembelajaran</h2>
+                    </div>
+                    <div class="text-right">
+                        <span id="evalProgressText" class="text-xs bg-white/20 px-3 py-1 rounded-full font-semibold">Soal 1 / 17</span>
+                    </div>
+                </div>
+
+                <div class="p-6 md:p-8 space-y-6">
+                    <!-- Quiz Container -->
+                    <div id="evalQuizBox" class="space-y-6">
+                        <!-- Question Header -->
+                        <div class="flex items-center space-x-3">
+                            <span id="evalTypeBadge" class="text-xs font-bold px-3 py-1 rounded-full bg-blue-100 text-blue-700">Pilihan Ganda (5 Poin)</span>
+                        </div>
+
+                        <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200">
+                            <p id="evalQuestionText" class="text-base font-bold text-slate-800 leading-relaxed">
+                                Teks soal evaluasi akan tampil di sini...
+                            </p>
+                        </div>
+
+                        <!-- Answer Options Container -->
+                        <div id="evalOptionsContainer" class="space-y-3">
+                            <!-- Options injected by JS -->
+                        </div>
+
+                        <!-- Navigation Footer -->
+                        <div class="flex justify-between items-center pt-4 border-t border-slate-200">
+                            <button id="evalPrevBtn" onclick="navigateEval(-1)" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-xl font-bold text-xs hover:bg-slate-300">
+                                <i class="fa-solid fa-chevron-left mr-1"></i> Soal Sebelumnya
+                            </button>
+                            <button id="evalNextBtn" onclick="navigateEval(1)" class="px-6 py-2 bg-emerald-600 text-white rounded-xl font-bold text-xs hover:bg-emerald-700 shadow">
+                                Soal Selanjutnya <i class="fa-solid fa-chevron-right ml-1"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Evaluation Final Result Screen (Hidden initially) -->
+                    <div id="evalResultBox" class="hidden text-center space-y-6 py-4">
+                        <div class="w-24 h-24 mx-auto rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-5xl bounce-slow">
+                            <i id="evalResultIcon" class="fa-solid fa-trophy"></i>
+                        </div>
+
+                        <div>
+                            <h3 class="text-2xl font-black text-slate-800">Hasil Evaluasi Pembelajaran</h3>
+                            <p class="text-xs text-slate-500 mt-1">MPI BK SMK PERINTIS - Tahun 2026/2027</p>
+                        </div>
+
+                        <div class="max-w-md mx-auto bg-gradient-to-br from-slate-50 to-emerald-50/50 p-6 rounded-3xl border border-emerald-100 space-y-3">
+                            <div class="text-5xl font-extrabold text-emerald-600" id="evalScoreDisplay">0</div>
+                            <div class="text-sm font-bold text-slate-700" id="evalPredicateDisplay">Predikat: Sangat Baik</div>
+                            <p id="evalMotivationMsg" class="text-xs text-slate-600 italic leading-relaxed"></p>
+                        </div>
+
+                        <!-- Rubric & Discussion Accordion -->
+                        <div class="max-w-xl mx-auto text-left">
+                            <button onclick="toggleDiscussion()" class="w-full p-4 bg-slate-100 hover:bg-slate-200 rounded-2xl font-bold text-xs text-slate-700 flex justify-between items-center">
+                                <span><i class="fa-solid fa-list-check mr-2"></i> Lihat Pedoman Penilaian & Pembahasan Soal</span>
+                                <i class="fa-solid fa-chevron-down"></i>
+                            </button>
+                            <div id="evalDiscussionContent" class="hidden mt-3 p-4 bg-slate-50 rounded-2xl border border-slate-200 text-xs space-y-3 max-h-60 overflow-y-auto">
+                                <p class="font-bold text-slate-800">Bobot Penilaian:</p>
+                                <ul class="list-disc pl-4 space-y-1 text-slate-600">
+                                    <li>10 Soal Pilihan Ganda = Total 50 Poin (5 Poin/soal)</li>
+                                    <li>5 Soal Benar/Salah = Total 20 Poin (4 Poin/soal)</li>
+                                    <li>2 Soal Studi Kasus = Total 30 Poin (15 Poin/soal)</li>
+                                </ul>
+                                <div id="discussionList" class="space-y-2 border-t pt-2">
+                                    <!-- Populated dynamically -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-center space-x-4 pt-4">
+                            <button onclick="restartEvaluation()" class="px-6 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-2xl font-bold text-xs">
+                                <i class="fa-solid fa-rotate-right mr-1"></i> Ulangi Evaluasi
+                            </button>
+                            <button onclick="showScreen('dashboardScreen')" class="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-bold text-xs shadow">
+                                <i class="fa-solid fa-house mr-1"></i> Kembali ke Dashboard
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= MENU 7: PROFIL PENGEMBANG ================= -->
+        <section id="menu7" class="screen-section hidden animate-fade-in">
+            <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-200 max-w-4xl mx-auto">
+                <div class="bg-gradient-to-r from-purple-700 via-indigo-700 to-blue-700 p-8 text-white text-center relative">
+                    <span class="text-xs bg-yellow-400 text-slate-900 px-3 py-1 rounded-full font-black uppercase tracking-wider">Profil Pengembang MPI</span>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold mt-3">Nurul Hidayah, S.Pd.</h2>
+                    <p class="text-purple-200 text-sm mt-1">Guru Bimbingan dan Konseling | SMK PERINTIS</p>
+                </div>
+
+                <div class="p-6 md:p-8 grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+                    <!-- Profile Graphic / SVG Illustration -->
+                    <div class="md:col-span-5 flex flex-col items-center justify-center">
+                        <div class="w-48 h-48 bg-gradient-to-br from-pink-100 to-purple-100 rounded-full border-4 border-purple-300 p-2 shadow-lg flex items-center justify-center">
+                            <!-- SVG BK Teacher Female Graphic -->
+                            <svg class="w-36 h-36" viewBox="0 0 100 100" fill="none">
+                                <circle cx="50" cy="35" r="22" fill="#fbcfe8"/>
+                                <!-- Hijab / Hair -->
+                                <path d="M25 40 C25 15, 75 15, 75 40 C75 55, 68 60, 50 60 C32 60, 25 55, 25 40 Z" fill="#7c3aed"/>
+                                <!-- Face -->
+                                <circle cx="50" cy="40" r="15" fill="#fde047"/>
+                                <!-- Eyes -->
+                                <circle cx="44" cy="38" r="2" fill="#1e293b"/>
+                                <circle cx="56" cy="38" r="2" fill="#1e293b"/>
+                                <!-- Smile -->
+                                <path d="M45 46 Q50 50 55 46" stroke="#1e293b" stroke-width="2" stroke-linecap="round"/>
+                                <!-- Outfit -->
+                                <path d="M20 90 C20 65, 80 65, 80 90 Z" fill="#2563eb"/>
+                                <!-- ID Badge -->
+                                <rect x="45" y="72" width="10" height="14" rx="2" fill="#ffffff"/>
+                                <rect x="47" y="75" width="6" height="2" fill="#2563eb"/>
+                            </svg>
+                        </div>
+                        <span class="mt-3 text-xs font-bold text-slate-500 bg-slate-100 px-3 py-1 rounded-full">Fase E / Kelas X SMK</span>
+                    </div>
+
+                    <!-- Meta Details & Motivational Quote -->
+                    <div class="md:col-span-7 space-y-4">
+                        <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-2 text-xs sm:text-sm">
+                            <div class="flex justify-between border-b pb-2">
+                                <span class="text-slate-500">Mata Pelajaran:</span>
+                                <span class="font-bold text-slate-800">Bimbingan dan Konseling</span>
+                            </div>
+                            <div class="flex justify-between border-b pb-2">
+                                <span class="text-slate-500">Pokok Bahasan:</span>
+                                <span class="font-bold text-slate-800">Pencegahan & Penanganan Bullying</span>
+                            </div>
+                            <div class="flex justify-between border-b pb-2">
+                                <span class="text-slate-500">Instansi:</span>
+                                <span class="font-bold text-slate-800">SMK PERINTIS</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-500">Tahun Ajaran:</span>
+                                <span class="font-bold text-slate-800">2026/2027</span>
+                            </div>
+                        </div>
+
+                        <!-- Closing Inspirational Quote -->
+                        <div class="bg-gradient-to-br from-purple-50 to-pink-50 p-5 rounded-2xl border border-purple-200">
+                            <i class="fa-solid fa-quote-left text-2xl text-purple-400 mb-2 block"></i>
+                            <p class="text-sm font-semibold italic text-purple-900 leading-relaxed">
+                                "Jangan menjadi alasan seseorang takut datang ke sekolah. Jadilah alasan seseorang merasa aman, diterima, dan dihargai."
+                            </p>
+                            <p class="text-xs font-bold text-purple-700 mt-2 text-right">— Nurul Hidayah, S.Pd.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-slate-900 text-slate-400 py-6 border-t border-slate-800 mt-8">
+        <div class="max-w-7xl mx-auto px-4 text-center text-xs space-y-2">
+            <p>© 2026 Media Pembelajaran Interaktif BK — SMK PERINTIS. All Rights Reserved.</p>
+            <p class="text-slate-500">Dirancang khusus untuk memenuhi Capaian Pembelajaran Fase E Kelas X SMK.</p>
+        </div>
+    </footer>
+
+    <!-- MODAL GUIDE -->
+    <div id="guideModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 space-y-4 shadow-2xl animate-fade-in">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 class="font-bold text-lg text-slate-800"><i class="fa-solid fa-circle-info text-blue-600 mr-2"></i> Petunjuk Penggunaan MPI</h3>
+                <button onclick="closeModal('guideModal')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <div class="text-xs text-slate-600 space-y-3 leading-relaxed max-h-80 overflow-y-auto pr-1">
+                <p>1. <strong>Navigasi Utama:</strong> Gunakan menu utama pada Dashboard untuk memilih 7 materi dan kegiatan.</p>
+                <p>2. <strong>Fitur Suara (Web Speech API):</strong> Tekan tombol <span class="text-blue-600 font-bold">Suara ON/OFF</span> di pojok kanan atas untuk memutar narasi otomatis dalam bahasa Indonesia.</p>
+                <p>3. <strong>Simulasi & Game:</strong> Pilihlah opsi keputusan terbaik pada Simulasi dan jawab mini-game untuk mengumpulkan poin keberanian anti-bullying.</p>
+                <p>4. <strong>Pengisian LKPD:</strong> Ketikkan jawabanmu di menu LKPD Digital dan gunakan tombol <span class="text-amber-600 font-bold">Cetak / Download PDF</span> untuk menyerahkan tugas ke Guru BK.</p>
+                <p>5. <strong>Penyimpanan Progres:</strong> Seluruh nilai game dan progres pembelajaran akan tersimpan secara otomatis di browser Anda.</p>
+            </div>
+            <button onclick="closeModal('guideModal')" class="w-full py-2.5 bg-blue-600 text-white rounded-xl font-bold text-xs hover:bg-blue-700">Saya Mengerti</button>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        /* ================= GLOBAL STATE & STORAGE ================= */
+        let state = {
+            audioEnabled: true,
+            currentMateriIndex: 0,
+            currentSimScenario: 0,
+            gameScore: 0,
+            completedMenus: new Set(),
+            evalAnswers: {},
+            evalCurrentQuestion: 0
+        };
+
+        // Web Speech API Voice Instance
+        const synth = window.speechSynthesis;
+        let speechUtterance = null;
+
+        /* ================= 1. MATERI DATA (MENU 1) ================= */
+        const materiData = [
+            {
+                title: "1. Pengertian Bullying",
+                text: "Bullying (perundungan) adalah tindakan agresif yang dilakukan secara sengaja, berulang kali, dan melibatkan ketidakseimbangan kekuatan. Pelaku merasa memiliki kendali lebih atas korban yang sulit membela diri.",
+                example: "Di SMK PERINTIS, seorang siswa senior sengaja memaksa adik kelas membelikan makanan di kantin setiap hari dengan ancaman verbal.",
+                icon: `<svg class="w-32 h-32 mx-auto" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#dbeafe"/><path d="M30 65 L50 35 L70 65 Z" fill="#2563eb"/><circle cx="50" cy="30" r="8" fill="#f59e0b"/></svg>`,
+                quiz: { q: "Apakah tindakan menyuruh teman secara paksa berulang kali termasuk bullying?", answer: true }
+            },
+            {
+                title: "2. Perbedaan Bullying dan Konflik Biasa",
+                text: "Konflik biasa terjadi secara tidak sengaja, ada keseimbangan kekuatan, dan kedua pihak ingin menyelesaikan masalah. Sedangkan Bullying sengaja menyakiti, berulang, dan pelaku menikmati penderitaan korban.",
+                example: "Adu argumen saat diskusi kelompok SMK karena perbedaan pendapat adalah KONFLIK BIASA, bukan bullying.",
+                icon: `<svg class="w-32 h-32 mx-auto" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#fef3c7"/><rect x="25" y="45" width="20" height="20" fill="#f59e0b"/><rect x="55" y="45" width="20" height="20" fill="#ef4444"/></svg>`,
+                quiz: { q: "Apakah percekcokan sesaat tanpa NIAT MENYAKITI disebut perundungan?", answer: false }
+            },
+            {
+                title: "3. Bullying Fisik",
+                text: "Segala bentuk perundungan yang melibatkan kontak fisik langsung seperti memukul, menendang, mendorong, merusak barang milik orang lain, atau memalak uang.",
+                example: "Merusak alat praktikum bengkel milik teman sekelas secara sengaja agar nilainya jelek.",
+                icon: `<svg class="w-32 h-32 mx-auto" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#fee2e2"/><path d="M35 50 Q50 20 65 50" stroke="#ef4444" stroke-width="8" fill="none"/></svg>`,
+                quiz: { q: "Apakah merusak helm atau tas teman sekelas termasuk bullying fisik?", answer: true }
+            },
+            {
+                title: "4. Bullying Verbal",
+                text: "Perundungan menggunakan kata-kata, julukan mengejek, hinaan fisik (body shaming), ancaman, atau ucapan rasis yang merendahkan martabat orang lain.",
+                example: "Memanggil teman SMK dengan sebutan hewan atau kekurangan fisiknya saat di ruang kelas.",
+                icon: `<svg class="w-32 h-32 mx-auto" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#f3e8ff"/><path d="M30 40 H70 V60 H40 L30 70 Z" fill="#7c3aed"/></svg>`,
+                quiz: { q: "Apakah memanggil teman dengan julukan fisik bernada ejekan termasuk bullying verbal?", answer: true }
+            },
+            {
+                title: "5. Bullying Relasional (Sosial)",
+                text: "Perundungan secara tidak langsung yang bertujuan merusak hubungan sosial atau reputasi seseorang, seperti pengucilan, menyebarkan rumor, atau memusuhi bersama.",
+                example: "Mengajak seluruh anggota kelas untuk tidak mau berteman atau satu kelompok praktikum dengan seorang siswa baru.",
+                icon: `<svg class="w-32 h-32 mx-auto" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#e0e7ff"/><circle cx="35" cy="50" r="10" fill="#6366f1"/><circle cx="65" cy="50" r="10" fill="#cbd5e1"/></svg>`,
+                quiz: { q: "Apakah menghasut teman sekelas agar memusuhi seseorang termasuk perundungan?", answer: true }
+            },
+            {
+                title: "6. Cyberbullying",
+                text: "Perundungan menggunakan media digital atau media sosial, seperti mengirim pesan teror, mengedit foto secara tidak pantas, menyebarkan hoaks, atau membuat grup khusus untuk merendahkan korban.",
+                example: "Membuat akun palsu di Instagram untuk mengunggah kompilasi foto memalukan teman tanpa izin.",
+                icon: `<svg class="w-32 h-32 mx-auto" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#ec4899" fill-opacity="0.2"/><rect x="30" y="25" width="40" height="50" rx="5" fill="#ec4899"/></svg>`,
+                quiz: { q: "Apakah membuat sticker WhatsApp mengejek wajah teman termasuk cyberbullying?", answer: true }
+            },
+            {
+                title: "7. Faktor Penyebab Bullying",
+                text: "Bullying terjadi karena beberapa faktor: ingin merasa berkuasa, kurangnya empati, pengaruh teman sebaya yang buruk, pernah menjadi korban di masa lalu, atau minimnya pengawasan lingkungan.",
+                example: "Pelaku biasanya mencari perhatian kelompoknya dengan cara menindas orang yang dianggap lemah.",
+                icon: `<svg class="w-32 h-32 mx-auto" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#fef3c7"/><path d="M50 20 L80 80 H20 Z" fill="#f59e0b"/></svg>`,
+                quiz: { q: "Apakah keinginan mencari perhatian kelompok bisa memicu seseorang melakukan perundungan?", answer: true }
+            },
+            {
+                title: "8. Ciri dan Peran: Pelaku, Korban, & Saksi",
+                text: "Pelaku (dominan & agresif), Korban (pendiam & cemas), Saksi Pasif (diam karena takut), dan Saksi Aktif / Upstander (peduli & melapor).",
+                example: "Menjadi 'Upstander' berarti berani membela teman yang diejek atau melaporkan ke Guru BK.",
+                icon: `<svg class="w-32 h-32 mx-auto" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#d1fae5"/><circle cx="30" cy="50" r="8" fill="#10b981"/><circle cx="50" cy="50" r="8" fill="#ef4444"/><circle cx="70" cy="50" r="8" fill="#3b82f6"/></svg>`,
+                quiz: { q: "Apakah saksi yang hanya menonton dan tertawa ikut mendukung tindakan perundungan?", answer: true }
+            },
+            {
+                title: "9. Dampak Bullying Bagi Siswa",
+                text: "Dampak psikologis: trauma, depresi, cemas. Dampak sosial: menarik diri. Dampak belajar: penurunan prestasi, sering bolos karena takut datang ke sekolah.",
+                example: "Siswa SMK yang mengalami cyberbullying tidak berani masuk kelas laboratorium karena trauma.",
+                icon: `<svg class="w-32 h-32 mx-auto" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#fee2e2"/><path d="M35 60 Q50 45 65 60" stroke="#ef4444" stroke-width="6" fill="none"/></svg>`,
+                quiz: { q: "Apakah bullying dapat berdampak buruk pada kesehatan mental korban hingga waktu lama?", answer: true }
+            },
+            {
+                title: "10. Cara Mencegah dan Mengatasi Bullying",
+                text: "Membangun budaya sekolah bersahabat, menghargai perbedaan, meningkatkan empati, dan menetapkan aturan anti-bullying yang tegas di lingkungan SMK PERINTIS.",
+                example: "Membuat kesepakatan bersama kelas X untuk tidak ada julukan ejekan selama praktikum.",
+                icon: `<svg class="w-32 h-32 mx-auto" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#dbeafe"/><path d="M50 20 L75 40 V75 L50 90 L25 75 V40 Z" fill="#2563eb"/></svg>`,
+                quiz: { q: "Apakah bersikap acuh tak acuh merupakan cara tepat mencegah bullying?", answer: false }
+            },
+            {
+                title: "11. Menjadi Teman yang Peduli (Upstander)",
+                text: "Jangan menjadi Bystander (penonton pasif)! Jadilah Upstander: beri dukungan pada korban, ajak bicara secara pribadi, dan temani saat melapor.",
+                example: "Siti merangkul Andi yang diejek dan mengajaknya duduk bersama di perpustakaan.",
+                icon: `<svg class="w-32 h-32 mx-auto" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#fbcfe8"/><path d="M50 35 C40 20, 20 35, 50 70 C80 35, 60 20, 50 35 Z" fill="#ec4899"/></svg>`,
+                quiz: { q: "Apakah merangkul korban dan membantunya termasuk tindakan teman yang peduli?", answer: true }
+            },
+            {
+                title: "12. Melaporkan Kepada Guru BK & Sekolah",
+                text: "Melaporkan bullying BUKAN 'mengadu' atau 'pengecut', melainkan tindakan pemberani untuk menyelamatkan teman dan menjaga sekolah tetap aman.",
+                example: "Mendatangi ruang Ruang BK SMK PERINTIS untuk berkonsultasi mengenai perundungan yang terjadi di kelas.",
+                icon: `<svg class="w-32 h-32 mx-auto" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#e0e7ff"/><rect x="35" y="30" width="30" height="40" rx="3" fill="#4338ca"/></svg>`,
+                quiz: { q: "Apakah melaporkan perundungan kepada Guru BK merupakan tindakan yang tepat?", answer: true }
+            }
+        ];
+
+        /* ================= 2. SIMULATION DATA (MENU 2) ================= */
+        const simScenarios = [
+            {
+                category: "Skenario 1: Ejekan Fisik (Body Shaming)",
+                title: "Di Lapangan Olahraga SMK",
+                desc: "Andi baru selesai olahraga dan berkeringat. Budi di depan teman-temannya tertawa kencang sambil meneriaki Andi dengan julukan fisik yang kasar.",
+                icon: `<i class="fa-solid fa-person-running text-4xl text-purple-600"></i>`,
+                choices: [
+                    {
+                        text: "A. Siti (saksi) ikut tertawa bersama Budi agar tidak dikira kaku.",
+                        isBest: false,
+                        feedback: "Pilihan ini SALAH. Tertawa ikut memperkuat posisi pelaku dan memperparah penderitaan Andi.",
+                        note: "Saksi yang tertawa disebut Bystander Pasif yang mendukung perundungan."
+                    },
+                    {
+                        text: "B. Siti menghampiri Andi, mengajaknya pindah lokasi, dan menegur Budi agar tidak mengejek.",
+                        isBest: true,
+                        feedback: "Pilihan SANGAT TEPAT! Kamu bertindak sebagai Upstander yang berani dan peduli.",
+                        note: "Mengalihkan korban dan menegur dengan sopan adalah respon paling aman dan efektif."
+                    },
+                    {
+                        text: "C. Andi membalas dengan memukul Budi.",
+                        isBest: false,
+                        feedback: "Pilihan KURANG TEPAT. Kekerasan fisik balasan dapat membahayakan dirimu dan memicu sanksi sekolah.",
+                        note: "Hindari kekerasan balasan. Laporkan ke Guru BK."
+                    }
+                ]
+            },
+            {
+                category: "Skenario 2: Pengucilan Sosial",
+                title: "Kerja Kelompok Praktikum Bengkel",
+                desc: "Budi mempengaruhi teman satu kelompok agar tidak memberikan pembagian tugas kepada Andi dan sengaja tidak menyapa Andi selama praktikum.",
+                icon: `<i class="fa-solid fa-users-slash text-4xl text-indigo-600"></i>`,
+                choices: [
+                    {
+                        text: "A. Siti mengajak Andi bergabung dan membagi tugas secara adil.",
+                        isBest: true,
+                        feedback: "Pilihan HEBAT! Kamu memutus rantai pengucilan sosial.",
+                        note: "Sikap inklusif merangkul semua teman adalah ciri siswa SMK berkarakter."
+                    },
+                    {
+                        text: "B. Membiarkan Andi sendirian karena tidak mau berselisih dengan Budi.",
+                        isBest: false,
+                        feedback: "Pilihan KURANG TEPAT. Membiarkan pengucilan membuat korban merasa terisolasi.",
+                        note: "Keberanian bersikap adil sangat dibutuhkan korban perundungan."
+                    }
+                ]
+            },
+            {
+                category: "Skenario 3: Cyberbullying WhatsApp",
+                title: "Grup WhatsApp Angkatan SMK",
+                desc: "Budi mengedit foto wajah Andi menjadi meme ejekan dan mengirimkannya ke grup WA kelas, menyebabkan banyak stiker tertawa.",
+                icon: `<i class="fa-solid fa-mobile-screen-button text-4xl text-pink-600"></i>`,
+                choices: [
+                    {
+                        text: "A. Siti membalas di grup: 'Tolong jangan jadikan foto teman sebagai ejekan', lalu screenshot bukti laporan ke Guru BK.",
+                        isBest: true,
+                        feedback: "Pilihan SANGAT TEPAT! Kamu menghentikan cyberbullying dan menyimpan bukti sah.",
+                        note: "Menyiapkan bukti tangkapan layar sangat penting untuk penanganan kasus cyberbullying."
+                    },
+                    {
+                        text: "B. Mengirimkan stiker tersebut ke grup sekolah lain.",
+                        isBest: false,
+                        feedback: "Pilihan SANGAT SALAH! Menyebarkan konten ejekan membuatmu menjadi pelaku cyberbullying.",
+                        note: "Jangan pernah menyebarluaskan konten perundungan digital."
+                    }
+                ]
+            }
+        ];
+
+        /* ================= 3. MINI GAMES DATA (MENU 4) ================= */
+        let game1Questions = [
+            { text: "Mengunci teman dari luar di dalam kamar mandi sekolah.", type: "fisik", emoji: "🚪" },
+            { text: "Memanggil teman dengan sebutan julukan binatang.", type: "verbal", emoji: "🗣️" },
+            { text: "Menghasut sekelas agar tidak ada yang mau menyapa seorang siswa.", type: "relasional", emoji: "🚫" },
+            { text: "Mengunggah foto pribadi teman di medsos tanpa izin untuk dipermalukan.", type: "cyber", emoji: "📲" }
+        ];
+        let g1CurrentIdx = 0;
+
+        let game2Statements = [
+            { text: "Bullying hanya terjadi jika ada tindak kekerasan fisik seperti memukul.", answer: false },
+            { text: "Menjadi saksi yang diam saja berarti secara tidak langsung mendukung pelaku.", answer: true },
+            { text: "Melaporkan kejadian perundungan kepada Guru BK adalah tindakan pemberani.", answer: true },
+            { text: "Mengkritik hasil kerja kelompok saat diskusi adalah bentuk perundungan.", answer: false }
+        ];
+        let g2CurrentIdx = 0;
+
+        let game3Scenarios = [
+            {
+                title: "Situasi 1: Penodatan Di Bengkel",
+                desc: "Kamu melihat junior dipaksa memberikan uang sakunya.",
+                choices: [
+                    { text: "Pura-pura tidak lihat", score: 0 },
+                    { text: "Mengajak teman lain untuk menegur dan melapor ke guru", score: 100 },
+                    { text: "Merekam video dan tertawa", score: 0 }
+                ]
+            },
+            {
+                title: "Situasi 2: Gosip Di Kantin",
+                desc: "Temanmu menyebarkan fitnah buruk tentang siswi baru.",
+                choices: [
+                    { text: "Meminta teman tersebut berhenti menyebar fitnah", score: 100 },
+                    { text: "Ikut menyebarkan gosip tersebut", score: 0 }
+                ]
+            }
+        ];
+        let g3CurrentIdx = 0;
+
+        /* ================= 4. EVALUATION DATA (MENU 6) ================= */
+        const evalQuestions = [
+            // 10 Pilihan Ganda (5 Poin)
+            { type: "pg", q: "1. Pengertian perilaku perundungan (bullying) yang paling tepat adalah...", options: ["A. Pertengkaran spontan antara dua orang", "B. Perilaku agresif sengaja & berulang dengan ketidakseimbangan kekuatan", "C. Perbedaan pendapat saat diskusi kelompok", "D. Bercanda santai yang disukai semua pihak"], ans: 1, explanation: "Bullying ditandai dengan kesengajaan, pengulangan, dan ketimpangan kuasa." },
+            { type: "pg", q: "2. Tindakan memanggil teman dengan nama sebutan fisik bernada menghina termasuk jenis...", options: ["A. Bullying Fisik", "B. Bullying Relasional", "C. Bullying Verbal", "D. Cyberbullying"], ans: 2, explanation: "Segala ucapan menghina atau julukan mengejek masuk kategori verbal." },
+            { type: "pg", q: "3. Seorang siswa sengaja diabaikan dan diboikot dari semua grup pertemanan kelas. Ini adalah contoh...", options: ["A. Bullying Fisik", "B. Bullying Relasional/Sosial", "C. Konflik biasa", "D. Kerjasama kelompok"], ans: 1, explanation: "Pengucilan bertujuan merusak hubungan sosial (relasional)." },
+            { type: "pg", q: "4. Manakah di bawah ini yang MERUPAKAN contoh Cyberbullying?", options: ["A. Menyentuh bahu teman", "B. Membuat meme ejekan wajah teman dan disebar di grup WhatsApp", "C. Menegur teman yang datang terlambat", "D. Menolak memberikan jawaban ujian"], ans: 1, explanation: "Meme ejekan via WhatsApp adalah perundungan di ranah digital." },
+            { type: "pg", q: "5. Istilah untuk saksi yang peduli dan berani bertindak menghentikan perundungan adalah...", options: ["A. Bystander Pasif", "B. Upstander", "C. Provokator", "D. Victim"], ans: 1, explanation: "Upstander adalah saksi yang berani membela atau melapor." },
+            { type: "pg", q: "6. Salah satu dampak psikologis utama yang dialami oleh korban bullying adalah...", options: ["A. Menjadi lebih percaya diri", "B. Rasa cemas berlebih, takut ke sekolah, dan trauma", "C. Prestasi belajar meningkat tajam", "D. Memiliki banyak teman baru"], ans: 1, explanation: "Korban perundungan rentan mengalami cemas dan trauma psikologis." },
+            { type: "pg", q: "7. Mengapa melapor ke Guru BK saat melihat perundungan BUKAN tindakan 'pengadu'?", options: ["A. Karena melapor bertujuan melindungi keselamatan dan hak teman", "B. Karena ingin mendapat pujian dari guru", "C. Karena ingin membalas dendam", "D. Karena tidak ada pekerjaan lain"], ans: 0, explanation: "Melapor adalah langkah perlindungan dan penegakan keadilan." },
+            { type: "pg", q: "8. Perbedaan mendasar antara konflik biasa dan bullying terletak pada...", options: ["A. Lokasi kejadian", "B. Ada/tidaknya niat sengaja menyakiti dan pengulangan", "C. Seragam sekolah yang dipakai", "D. Usia pelaku"], ans: 1, explanation: "Konflik tidak berniat menyakiti secara terus menerus." },
+            { type: "pg", q: "9. Tindakan terbaik yang harus dilakukan jika kamu mengalami cyberbullying adalah...", options: ["A. Membalas dengan kata-kata lebih kasar", "B. Simpan bukti screenshot, blokir pelaku, dan ceritakan pada Guru BK/Orang tua", "C. Menutup akun dan menangis sendiri", "D. Memusuhi semua teman sekelas"], ans: 1, explanation: "Menyimpan bukti screenshot vital untuk tindak lanjut konseling." },
+            { type: "pg", q: "10. Apa tujuan utama pembuatan Deklarasi Anti-Bullying di kelas SMK?", options: ["A. Hanya pajangan dinding kelas", "B. Komitmen bersama menciptakan lingkungan belajar yang aman dan saling menghargai", "C. Syarat kelulusan ujian", "D. Tugas formalitas saja"], ans: 1, explanation: "Deklarasi memperkuat budaya positif dan kepedulian antar siswa." },
+
+            // 5 Benar / Salah (4 Poin)
+            { type: "bs", q: "11. Bullying verbal tidak berbahaya karena tidak meninggalkan luka memar secara fisik.", options: ["Benar", "Salah"], ans: 1, explanation: "Salah. Luka psikologis akibat kata-kata seringkali bertahan lebih lama." },
+            { type: "bs", q: "12. Saksi yang hanya menonton perundungan tanpa melerai turut mendukung berlanjutnya perundungan.", options: ["Benar", "Salah"], ans: 0, explanation: "Benar. Diamnya saksi memberi rasa berkuasa bagi pelaku." },
+            { type: "bs", q: "13. Guru BK bertugas membantu dan mendampingi penyelesaian masalah perundungan secara rahasia dan aman.", options: ["Benar", "Salah"], ans: 0, explanation: "Benar. Konseling menjamin kerahasiaan dan keamanan siswa." },
+            { type: "bs", q: "14. Bercanda yang terus membuat salah satu pihak merasa sedih dan tertekan dapat dikategorikan perundungan.", options: ["Benar", "Salah"], ans: 0, explanation: "Benar. Jika salah satu pihak tertekan, itu bukan lagi becandaan." },
+            { type: "bs", q: "15. Membalas pelaku bullying dengan kekerasan fisik adalah cara paling tepat dan aman.", options: ["Benar", "Salah"], ans: 1, explanation: "Salah. Kekerasan balasan justru memperluas bahaya fisik." },
+
+            // 2 Studi Kasus (15 Poin)
+            { type: "sk", q: "16. [Studi Kasus 1] Di bengkel SMK, Rian sering dimintai uang bensin secara paksa oleh kelompok senior setiap sore. Rian takut melapor karena diancam. Sebutkan 2 langkah tepat bagi teman Rian yang mengetahui hal ini!", options: ["Langkah 1: Temani Rian melapor ke Guru BK. Langkah 2: Jangan biarkan Rian berjalan sendirian.", "Abaikan saja karena urusan senior", "Suruh Rian membalas memukul", "Ikut meminta uang bensin"], ans: 0, explanation: "Mendampingi korban melapor dan memberi perlindungan sosial adalah langkah paling tepat." },
+            { type: "sk", q: "17. [Studi Kasus 2] Sebuah stiker WA berisi editan foto fisik Dini menyebar di grup angkatan. Apa tindakan yang harus diambil oleh ketua kelas yang bijak?", options: ["Menegur pembuat stiker di grup untuk menghapus, meminta anggota stop menyebarkan, dan melapor ke wali kelas/BK.", "Ikut tertawa dan memakai stiker tersebut", "Keluar dari grup WA", "Memarahi Dini karena baper"], ans: 0, explanation: "Ketua kelas bertindak tegas menghentikan penyebaran dan mengedukasi anggota grup." }
+        ];
+
+        /* ================= INITIALIZATION & NAVIGATION ================= */
+        window.onload = function() {
+            loadProgress();
+            renderMateri();
+            renderScenario();
+            renderGame1();
+            renderGame2();
+            renderGame3();
+            renderEvalQuestion();
+
+            // Auto Set Date for LKPD
+            document.getElementById('lkpdTanggal').valueAsDate = new Date();
+        };
+
+        function showScreen(screenId) {
+            // Hide all screen sections
+            document.querySelectorAll('.screen-section').forEach(el => el.classList.add('hidden'));
+            
+            // Show target section
+            const target = document.getElementById(screenId);
+            if(target) {
+                target.classList.remove('hidden');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+
+            // Mark completed menu progress
+            if(screenId.startsWith('menu')) {
+                state.completedMenus.add(screenId);
+                saveProgress();
+                updateProgressUI();
+            }
+
+            // Speech Narration Trigger per Screen
+            if(state.audioEnabled) {
+                synth.cancel(); // Stop ongoing speech
+                if(screenId === 'landingScreen') {
+                    speakText("Selamat datang di Media Pembelajaran Interaktif BK. Bullying: Berani Peduli, Berani Bertindak!");
+                } else if(screenId === 'dashboardScreen') {
+                    speakText("Silakan pilih salah satu dari tujuh menu pembelajaran anti bullying.");
+                } else if(screenId === 'menu1') {
+                    speakMateriCurrent();
+                } else if(screenId === 'menu7') {
+                    speakText("Profil Pengembang: Ibu Nurul Hidayah, S.Pd. Guru Bimbingan dan Konseling SMK PERINTIS.");
+                }
+            }
+        }
+
+        /* ================= WEB SPEECH API (AUDIO NARRATION) ================= */
+        function speakText(text) {
+            if(!state.audioEnabled || !('speechSynthesis' in window)) return;
+            
+            synth.cancel();
+            speechUtterance = new SpeechSynthesisUtterance(text);
+            speechUtterance.lang = 'id-ID';
+            speechUtterance.rate = 0.9; // Mild readable tempo
+            speechUtterance.pitch = 1.0;
+            synth.speak(speechUtterance);
+        }
+
+        function toggleAudio() {
+            state.audioEnabled = !state.audioEnabled;
+            const icon = document.getElementById('ttsIcon');
+            const text = document.getElementById('ttsText');
+
+            if(state.audioEnabled) {
+                icon.className = "fa-solid fa-volume-high text-yellow-300";
+                text.innerText = "Suara: ON";
+                speakText("Fitur suara aktif.");
+            } else {
+                synth.cancel();
+                icon.className = "fa-solid fa-volume-xmark text-slate-400";
+                text.innerText = "Suara: OFF";
+            }
+        }
+
+        /* ================= MENU 1: MATERI SLIDE LOGIC ================= */
+        function renderMateri() {
+            const data = materiData[state.currentMateriIndex];
+            document.getElementById('materiTitle').innerText = data.title;
+            document.getElementById('materiText').innerText = data.text;
+            document.getElementById('materiExample').innerText = data.example;
+            document.getElementById('materiIllustration').innerHTML = data.icon;
+            document.getElementById('materiPageNum').innerText = `Submateri ${state.currentMateriIndex + 1} / ${materiData.length}`;
+
+            // Mini Quiz Setup
+            document.getElementById('miniQuizQuestion').innerText = data.quiz.q;
+            const fb = document.getElementById('miniQuizFeedback');
+            fb.classList.add('hidden');
+
+            // Nav buttons state
+            document.getElementById('prevMateriBtn').disabled = (state.currentMateriIndex === 0);
+            document.getElementById('nextMateriBtn').innerText = (state.currentMateriIndex === materiData.length - 1) ? "Selesai Materi" : "Selanjutnya →";
+
+            if(state.audioEnabled) {
+                speakMateriCurrent();
+            }
+        }
+
+        function changeMateri(direction) {
+            const nextIdx = state.currentMateriIndex + direction;
+            if(nextIdx >= 0 && nextIdx < materiData.length) {
+                state.currentMateriIndex = nextIdx;
+                renderMateri();
+            } else if(nextIdx >= materiData.length) {
+                showScreen('dashboardScreen');
+            }
+        }
+
+        function speakMateriCurrent() {
+            const data = materiData[state.currentMateriIndex];
+            speakText(`${data.title}. ${data.text}. Contoh di SMK: ${data.example}`);
+        }
+
+        function repeatMateriAudio() {
+            speakMateriCurrent();
+        }
+
+        function checkMiniQuiz(userAns) {
+            const data = materiData[state.currentMateriIndex];
+            const fb = document.getElementById('miniQuizFeedback');
+            fb.classList.remove('hidden');
+
+            if(userAns === data.quiz.answer) {
+                fb.className = "text-xs font-bold mt-2 text-emerald-600";
+                fb.innerText = "✨ Jawabanmu Benar! Kamu memahami materi ini.";
+                playSynthSound(600, 0.1);
+            } else {
+                fb.className = "text-xs font-bold mt-2 text-rose-600";
+                fb.innerText = "❌ Kurang tepat. Coba baca kembali penjelasan ringkas di atas.";
+                playSynthSound(200, 0.2);
+            }
+        }
+
+        /* ================= MENU 2: SIMULATION LOGIC ================= */
+        function renderScenario() {
+            const sc = simScenarios[state.currentSimScenario];
+            document.getElementById('simScenarioIndicator').innerText = `Skenario ${state.currentSimScenario + 1} / ${simScenarios.length}`;
+            document.getElementById('simCategory').innerText = sc.category;
+            document.getElementById('simTitle').innerText = sc.title;
+            document.getElementById('simDescription').innerText = sc.desc;
+            document.getElementById('simCharacterIcon').innerHTML = sc.icon;
+
+            const container = document.getElementById('simChoicesContainer');
+            container.innerHTML = '';
+
+            sc.choices.forEach((choice, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left p-4 bg-white border-2 border-slate-200 hover:border-purple-500 rounded-2xl text-xs sm:text-sm font-semibold text-slate-700 transition flex justify-between items-center";
+                btn.innerHTML = `<span>${choice.text}</span> <i class="fa-solid fa-chevron-right text-xs text-slate-400"></i>`;
+                btn.onclick = () => selectSimChoice(choice);
+                container.appendChild(btn);
+            });
+
+            document.getElementById('simFeedbackBox').classList.add('hidden');
+            
+            if(state.audioEnabled) {
+                speakText(`${sc.category}. ${sc.title}. ${sc.desc}`);
+            }
+        }
+
+        function selectSimChoice(choice) {
+            const fbBox = document.getElementById('simFeedbackBox');
+            const fbTitle = document.getElementById('simFeedbackTitle');
+            const fbText = document.getElementById('simFeedbackText');
+            const eduNote = document.getElementById('simEducationalNote');
+
+            fbBox.classList.remove('hidden');
+
+            if(choice.isBest) {
+                fbBox.className = "p-5 rounded-2xl border bg-emerald-50 border-emerald-200 text-emerald-900";
+                fbTitle.innerText = "🌟 Keputusan Sangat Bijak!";
+                playSynthSound(700, 0.15);
+            } else {
+                fbBox.className = "p-5 rounded-2xl border bg-amber-50 border-amber-200 text-amber-900";
+                fbTitle.innerText = "⚠️ Perlu Pertimbangan Ulang!";
+                playSynthSound(250, 0.2);
+            }
+
+            fbText.innerText = choice.feedback;
+            eduNote.innerText = `💡 Catatan Edukatif Guru BK: ${choice.note}`;
+
+            if(state.audioEnabled) {
+                speakText(`${choice.feedback} ${choice.note}`);
+            }
+        }
+
+        function repeatScenario() {
+            renderScenario();
+        }
+
+        function nextScenario() {
+            if(state.currentSimScenario < simScenarios.length - 1) {
+                state.currentSimScenario++;
+                renderScenario();
+            } else {
+                state.currentSimScenario = 0;
+                showScreen('dashboardScreen');
+            }
+        }
+
+        /* ================= MENU 3: DETECTIVE PRACTICUM LOGIC ================= */
+        function evaluateDetectiveMission(e) {
+            e.preventDefault();
+            const feedback = document.getElementById('detectiveFeedback');
+            feedback.classList.remove('hidden');
+            feedback.scrollIntoView({ behavior: 'smooth' });
+            
+            state.completedMenus.add('menu3');
+            saveProgress();
+            updateProgressUI();
+
+            playSynthSound(800, 0.2);
+            if(state.audioEnabled) {
+                speakText("Selamat! Misi detektif anti-bullying telah selesai dikerjakan dengan sangat baik.");
+            }
+        }
+
+        /* ================= MENU 4: GAME EDUKASI LOGIC ================= */
+        function switchMiniGame(gameNum) {
+            document.getElementById('miniGame1Area').classList.add('hidden');
+            document.getElementById('miniGame2Area').classList.add('hidden');
+            document.getElementById('miniGame3Area').classList.add('hidden');
+
+            document.getElementById('tabGame1').className = "flex-1 min-w-[140px] py-3.5 px-4 text-xs sm:text-sm font-bold border-b-2 border-transparent text-slate-500";
+            document.getElementById('tabGame2').className = "flex-1 min-w-[140px] py-3.5 px-4 text-xs sm:text-sm font-bold border-b-2 border-transparent text-slate-500";
+            document.getElementById('tabGame3').className = "flex-1 min-w-[140px] py-3.5 px-4 text-xs sm:text-sm font-bold border-b-2 border-transparent text-slate-500";
+
+            if(gameNum === 1) {
+                document.getElementById('miniGame1Area').classList.remove('hidden');
+                document.getElementById('tabGame1').className = "flex-1 min-w-[140px] py-3.5 px-4 text-xs sm:text-sm font-bold border-b-2 border-pink-600 text-pink-600 bg-white";
+            } else if(gameNum === 2) {
+                document.getElementById('miniGame2Area').classList.remove('hidden');
+                document.getElementById('tabGame2').className = "flex-1 min-w-[140px] py-3.5 px-4 text-xs sm:text-sm font-bold border-b-2 border-pink-600 text-pink-600 bg-white";
+            } else {
+                document.getElementById('miniGame3Area').classList.remove('hidden');
+                document.getElementById('tabGame3').className = "flex-1 min-w-[140px] py-3.5 px-4 text-xs sm:text-sm font-bold border-b-2 border-pink-600 text-pink-600 bg-white";
+            }
+        }
+
+        function renderGame1() {
+            const q = game1Questions[g1CurrentIdx];
+            document.getElementById('g1ScenarioText').innerText = `"${q.text}"`;
+            document.getElementById('g1Emoji').innerText = q.emoji;
+        }
+
+        function answerGame1(selectedType) {
+            const q = game1Questions[g1CurrentIdx];
+            if(selectedType === q.type) {
+                addGameScore(50);
+                showGameAlert("🎉 Benar! Kasus ini sesuai dengan jenisnya.", "bg-emerald-500 text-white");
+                playSynthSound(750, 0.1);
+            } else {
+                showGameAlert("❌ Belum Tepat! Pelajari kembali karakteristik jenis perundungan.", "bg-rose-500 text-white");
+                playSynthSound(200, 0.2);
+            }
+            g1CurrentIdx = (g1CurrentIdx + 1) % game1Questions.length;
+            setTimeout(renderGame1, 1200);
+        }
+
+        function renderGame2() {
+            const st = game2Statements[g2CurrentIdx];
+            document.getElementById('g2StatementText').innerText = `"${st.text}"`;
+        }
+
+        function answerGame2(userChoice) {
+            const st = game2Statements[g2CurrentIdx];
+            if(userChoice === st.answer) {
+                addGameScore(50);
+                showGameAlert("⭐ Jawaban Tepat! Pemahamanmu sangat tajam.", "bg-emerald-500 text-white");
+                playSynthSound(750, 0.1);
+            } else {
+                showGameAlert("❌ Masih Salah! Ingat dampak perundungan secara menyeluruh.", "bg-rose-500 text-white");
+                playSynthSound(200, 0.2);
+            }
+            g2CurrentIdx = (g2CurrentIdx + 1) % game2Statements.length;
+            setTimeout(renderGame2, 1200);
+        }
+
+        function renderGame3() {
+            const sc = game3Scenarios[g3CurrentIdx];
+            document.getElementById('g3SituationTitle').innerText = sc.title;
+            document.getElementById('g3SituationDesc').innerText = sc.desc;
+
+            const container = document.getElementById('g3Choices');
+            container.innerHTML = '';
+            sc.choices.forEach(ch => {
+                const btn = document.createElement('button');
+                btn.className = "w-full p-3.5 bg-white border-2 border-slate-200 hover:border-pink-500 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 transition text-left";
+                btn.innerText = ch.text;
+                btn.onclick = () => {
+                    addGameScore(ch.score);
+                    if(ch.score > 0) {
+                        showGameAlert("🛡️ Hebat! Kamu bertindak sebagai Pahlawan Anti-Bullying!", "bg-emerald-500 text-white");
+                        playSynthSound(800, 0.15);
+                    } else {
+                        showGameAlert("⚠️ Tindakan tersebut belum melindungi korban.", "bg-amber-500 text-white");
+                        playSynthSound(200, 0.2);
+                    }
+                    g3CurrentIdx = (g3CurrentIdx + 1) % game3Scenarios.length;
+                    setTimeout(renderGame3, 1200);
+                };
+                container.appendChild(btn);
+            });
+        }
+
+        function addGameScore(pts) {
+            state.gameScore += pts;
+            document.getElementById('gameTotalScore').innerText = `${state.gameScore} Poin`;
+            saveProgress();
+        }
+
+        function showGameAlert(msg, bgClass) {
+            const alert = document.getElementById('gameFeedbackAlert');
+            alert.className = `mt-6 p-4 rounded-2xl text-center text-sm font-bold ${bgClass}`;
+            alert.innerText = msg;
+            alert.classList.remove('hidden');
+            setTimeout(() => alert.classList.add('hidden'), 2000);
+        }
+
+        /* ================= MENU 5: LKPD LOGIC ================= */
+        function saveLKPD() {
+            const data = {
+                nama: document.getElementById('lkpdNama').value,
+                kelas: document.getElementById('lkpdKelas').value,
+                tgl: document.getElementById('lkpdTanggal').value,
+                q1: document.getElementById('lkpdQ1').value,
+                q2: document.getElementById('lkpdQ2').value,
+                q3: document.getElementById('lkpdQ3').value,
+                q4: document.getElementById('lkpdQ4').value
+            };
+            localStorage.setItem('mpi_bk_lkpd', JSON.stringify(data));
+            
+            state.completedMenus.add('menu5');
+            saveProgress();
+            updateProgressUI();
+
+            alert('✅ Data LKPD berhasil disimpan di memori lokal!');
+        }
+
+        function clearLKPD() {
+            if(confirm('Apakah Anda yakin ingin mengosongkan seluruh isian LKPD?')) {
+                document.getElementById('lkpdNama').value = '';
+                document.getElementById('lkpdKelas').value = '';
+                document.getElementById('lkpdQ1').value = '';
+                document.getElementById('lkpdQ2').value = '';
+                document.getElementById('lkpdQ3').value = '';
+                document.getElementById('lkpdQ4').value = '';
+                localStorage.removeItem('mpi_bk_lkpd');
+            }
+        }
+
+        /* ================= MENU 6: EVALUASI LOGIC ================= */
+        function renderEvalQuestion() {
+            const q = evalQuestions[state.evalCurrentQuestion];
+            document.getElementById('evalProgressText').innerText = `Soal ${state.evalCurrentQuestion + 1} / ${evalQuestions.length}`;
+            document.getElementById('evalQuestionText').innerText = q.q;
+
+            const badge = document.getElementById('evalTypeBadge');
+            if(q.type === 'pg') badge.innerText = "Pilihan Ganda (5 Poin)";
+            else if(q.type === 'bs') badge.innerText = "Benar / Salah (4 Poin)";
+            else badge.innerText = "Studi Kasus (15 Poin)";
+
+            const container = document.getElementById('evalOptionsContainer');
+            container.innerHTML = '';
+
+            q.options.forEach((opt, idx) => {
+                const isSelected = state.evalAnswers[state.evalCurrentQuestion] === idx;
+                const btn = document.createElement('button');
+                btn.className = `w-full text-left p-4 rounded-2xl border-2 text-xs sm:text-sm font-semibold transition ${isSelected ? 'border-emerald-600 bg-emerald-50 text-emerald-900 font-bold' : 'border-slate-200 bg-white hover:border-emerald-400 text-slate-700'}`;
+                btn.innerText = opt;
+                btn.onclick = () => {
+                    state.evalAnswers[state.evalCurrentQuestion] = idx;
+                    renderEvalQuestion();
+                };
+                container.appendChild(btn);
+            });
+
+            document.getElementById('evalPrevBtn').disabled = (state.evalCurrentQuestion === 0);
+            document.getElementById('evalNextBtn').innerText = (state.evalCurrentQuestion === evalQuestions.length - 1) ? "Selesai & Hitung Nilai" : "Soal Selanjutnya →";
+        }
+
+        function navigateEval(dir) {
+            const nextIdx = state.evalCurrentQuestion + dir;
+            if(nextIdx >= 0 && nextIdx < evalQuestions.length) {
+                state.evalCurrentQuestion = nextIdx;
+                renderEvalQuestion();
+            } else if(nextIdx >= evalQuestions.length) {
+                calculateEvalResult();
+            }
+        }
+
+        function calculateEvalResult() {
+            let totalScore = 0;
+            evalQuestions.forEach((q, idx) => {
+                const userAns = state.evalAnswers[idx];
+                if(userAns === q.ans) {
+                    if(q.type === 'pg') totalScore += 5;
+                    else if(q.type === 'bs') totalScore += 4;
+                    else if(q.type === 'sk') totalScore += 15;
+                }
+            });
+
+            document.getElementById('evalQuizBox').classList.add('hidden');
+            const resBox = document.getElementById('evalResultBox');
+            resBox.classList.remove('hidden');
+
+            document.getElementById('evalScoreDisplay').innerText = totalScore;
+
+            let predicate = "";
+            let motivation = "";
+            if(totalScore >= 90) {
+                predicate = "Predikat: Sangat Baik (90-100)";
+                motivation = "Luar biasa! Pemahamanmu sangat mendalam. Kamu siap menjadi Pelopor Duta Anti-Bullying SMK PERINTIS!";
+            } else if(totalScore >= 80) {
+                predicate = "Predikat: Baik (80-89)";
+                motivation = "Sangat bagus! Kamu memiliki kepedulian dan pemahaman yang kuat untuk mencegah perundungan.";
+            } else if(totalScore >= 70) {
+                predicate = "Predikat: Cukup (70-79)";
+                motivation = "Cukup baik. Pelajari lagi beberapa poin materi agar lebih siap menghadapi situasi perundungan.";
+            } else {
+                predicate = "Predikat: Perlu Belajar Kembali (< 70)";
+                motivation = "Jangan patah semangat! Mari ulas kembali slide materi dan jalankan ulang simulasi.";
+            }
+
+            document.getElementById('evalPredicateDisplay').innerText = predicate;
+            document.getElementById('evalMotivationMsg').innerText = motivation;
+
+            // Populate discussion list
+            const discContainer = document.getElementById('discussionList');
+            discContainer.innerHTML = '';
+            evalQuestions.forEach((q, idx) => {
+                const p = document.createElement('p');
+                p.innerHTML = `<strong>Soal ${idx+1}:</strong> ${q.explanation}`;
+                discContainer.appendChild(p);
+            });
+
+            state.completedMenus.add('menu6');
+            saveProgress();
+            updateProgressUI();
+
+            if(state.audioEnabled) {
+                speakText(`Hasil evaluasi pembelajaranmu adalah ${totalScore}. ${predicate}. ${motivation}`);
+            }
+        }
+
+        function toggleDiscussion() {
+            const content = document.getElementById('evalDiscussionContent');
+            content.classList.toggle('hidden');
+        }
+
+        function restartEvaluation() {
+            state.evalAnswers = {};
+            state.evalCurrentQuestion = 0;
+            document.getElementById('evalResultBox').classList.add('hidden');
+            document.getElementById('evalQuizBox').classList.remove('hidden');
+            renderEvalQuestion();
+        }
+
+        /* ================= PERSISTENCE & UTILS ================= */
+        function saveProgress() {
+            const data = {
+                gameScore: state.gameScore,
+                completedMenus: Array.from(state.completedMenus)
+            };
+            localStorage.setItem('mpi_bk_progress', JSON.stringify(data));
+        }
+
+        function loadProgress() {
+            const saved = localStorage.getItem('mpi_bk_progress');
+            if(saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    state.gameScore = parsed.gameScore || 0;
+                    state.completedMenus = new Set(parsed.completedMenus || []);
+                    document.getElementById('gameTotalScore').innerText = `${state.gameScore} Poin`;
+                } catch(e){}
+            }
+
+            // Load Saved LKPD
+            const savedLKPD = localStorage.getItem('mpi_bk_lkpd');
+            if(savedLKPD) {
+                try {
+                    const lkpd = JSON.parse(savedLKPD);
+                    if(lkpd.nama) document.getElementById('lkpdNama').value = lkpd.nama;
+                    if(lkpd.kelas) document.getElementById('lkpdKelas').value = lkpd.kelas;
+                    if(lkpd.q1) document.getElementById('lkpdQ1').value = lkpd.q1;
+                    if(lkpd.q2) document.getElementById('lkpdQ2').value = lkpd.q2;
+                    if(lkpd.q3) document.getElementById('lkpdQ3').value = lkpd.q3;
+                    if(lkpd.q4) document.getElementById('lkpdQ4').value = lkpd.q4;
+                } catch(e){}
+            }
+
+            updateProgressUI();
+        }
+
+        function updateProgressUI() {
+            const total = 7;
+            const completed = state.completedMenus.size;
+            const pct = Math.round((completed / total) * 100);
+
+            document.getElementById('overallProgressBar').style.width = `${pct}%`;
+            document.getElementById('overallProgressText').innerText = `${pct}%`;
+
+            // Menu Dashboard Badges
+            state.completedMenus.forEach(menuId => {
+                const badge = document.getElementById(`badge-${menuId}`);
+                if(badge) {
+                    badge.className = "px-2.5 py-1 bg-emerald-100 text-emerald-700 rounded-full font-bold";
+                    badge.innerText = "Selesai ✓";
+                }
+            });
+        }
+
+        function resetProgress() {
+            if(confirm('Apakah Anda yakin ingin menghapus seluruh progres pembelajaran?')) {
+                localStorage.clear();
+                state.completedMenus.clear();
+                state.gameScore = 0;
+                location.reload();
+            }
+        }
+
+        function openModal(id) {
+            document.getElementById(id).classList.remove('hidden');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        // Web Audio Synthesizer Sound Generator
+        function playSynthSound(freq, duration) {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, ctx.currentTime);
+                gain.gain.setValueAtTime(0.1, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
+
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+
+                osc.start();
+                osc.stop(ctx.currentTime + duration);
+            } catch(e) {}
+        }
+    </script>
+</body>
+</html>
